@@ -9,6 +9,7 @@ buildscript {
         okhttp_version = "3.11.0"
         jackson_version = "2.9.6"
         mockito_version = "2.23.0"
+        lifecycle_version = "1.1.1"
     }
     repositories {
         google()
