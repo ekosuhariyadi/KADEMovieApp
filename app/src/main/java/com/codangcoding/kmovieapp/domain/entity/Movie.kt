@@ -7,6 +7,6 @@ data class Movie(
     @JsonProperty("vote_average") val vote: Double,
     val overview: String,
     @JsonProperty("release_date") val releaseDate: String,
-    @JsonProperty("poster_path") val posterPath: String,
-    @JsonProperty("backdrop_path") val backdropPath: String
+    @JsonProperty("poster_path") val posterPath: String?,
+    @JsonProperty("backdrop_path") val backdropPath: String?
 )

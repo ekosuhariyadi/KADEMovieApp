@@ -15,7 +15,7 @@ class MovieListPresenter(
     private val compositeJob = Job()
         get() {
             return if (field.isCancelled)
-                Job() // canceled job can be reused, so create a new
+                Job() // canceled job can not be reused, so create a new
             else field
         }
 

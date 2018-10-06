@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">KADE - Movie App</string>
+    <string name="popular">Popular</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="now_playing_movies">Now Playing Movies</string>
 </resources>
