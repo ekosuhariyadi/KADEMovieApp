@@ -1,7 +1,15 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.2.71'
+    ext {
+        kotlin_version = "1.2.71"
+        coroutine_version = "0.30.1"
+        retrofit2_version = "2.4.0"
+        retrofit2_coroutine_version = "1.0.0"
+        okhttp_version = "3.11.0"
+        jackson_version = "2.9.6"
+        mockito_version = "2.23.0"
+    }
     repositories {
         google()
         jcenter()
