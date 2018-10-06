@@ -84,4 +84,45 @@ class MovieServiceShould {
 
         Unit // to hide warning, because test case should return unit
     }
+
+    @Test
+    fun return_now_playing_movies_on_200_http_response() = runBlocking {
+        val mockReponse = MockResponse()
+            .setResponseCode(200)
+            .setBody(loadJSON(this.javaClass, "json/movie_response.json"))
+        webServer.enqueue(mockReponse)
+
+        val expectedMovies = listOf(
+            Movie(
+                title = "Venom",
+                vote = 6.4,
+                overview = "When Eddie Brock acquires the powers of a symbiote, he will have to release his alter-ego Venom to save his life.",
+                releaseDate = "2018-10-03",
+                posterPath = "/2uNW4WbgBXL25BAbXGLnLqX71Sw.jpg",
+                backdropPath = "/VuukZLgaCrho2Ar8Scl9HtV3yD.jpg"
+            ),
+            Movie(
+                title = "Ant-Man and the Wasp",
+                vote = 6.9,
+                overview = "Just when his time under house arrest is about to end, Scott Lang puts again his freedom at risk to help Hope van Dyne and Dr. Hank Pym dive into the quantum realm and try to accomplish, against time and any chance of success, a very dangerous rescue mission.",
+                releaseDate = "2018-07-04",
+                posterPath = "/rv1AWImgx386ULjcf62VYaW8zSt.jpg",
+                backdropPath = "/6P3c80EOm7BodndGBUAJHHsHKrp.jpg"
+            )
+        )
+
+        val actualMovies = service.getNowPlayingMovies().await().movies
+        assertEquals(expectedMovies, actualMovies)
+    }
+
+    @Test(expected = HttpException::class)
+    fun throw_http_exception_when_get_now_playing_movies_on_non_200_http_response() = runBlocking {
+        val mockReponse = MockResponse()
+            .setResponseCode(403)
+        webServer.enqueue(mockReponse)
+
+        service.getNowPlayingMovies().await()
+
+        Unit // to hide warning, because test case should return unit
+    }
 }
