@@ -1,5 +1,6 @@
 package com.codangcoding.kmovieapp.presentation.list
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.SwipeRefreshLayout
@@ -13,6 +14,7 @@ import com.codangcoding.kmovieapp.R
 import com.codangcoding.kmovieapp.domain.data.MovieRepository
 import com.codangcoding.kmovieapp.domain.data.MovieRepositoryImpl
 import com.codangcoding.kmovieapp.external.data.MovieService
+import com.codangcoding.kmovieapp.presentation.detail.MovieDetailActivity
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.LoadingState
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.ResultState
 import com.codangcoding.kmovieapp.ui.VerticalLinearLayoutOffsetItemDecoration
@@ -89,7 +91,9 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
         swipeRefresh.setOnRefreshListener(this)
 
         adapter = MovieListAdapter {
-            Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, MovieDetailActivity::class.java)
+                .putExtra(MovieDetailActivity.EXTRA_MOVIE, it)
+            startActivity(intent)
         }
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         movieList.layoutManager = layoutManager
@@ -101,7 +105,9 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
 
         GlobalScope.launch {
             for (viewState in presenter.viewStates()) {
-                renderState(viewState)
+                runOnUiThread {
+                    renderState(viewState)
+                }
             }
         }
     }
