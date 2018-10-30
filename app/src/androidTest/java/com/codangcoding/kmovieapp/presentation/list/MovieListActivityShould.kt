@@ -20,7 +20,7 @@ import com.codangcoding.kmovieapp.R
 import com.codangcoding.kmovieapp.domain.entity.Movie
 import com.codangcoding.kmovieapp.presentation.detail.MovieDetailActivity
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.ResultState
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.channels.Channel
 import org.hamcrest.CoreMatchers.allOf
 import org.junit.Rule
 import org.junit.Test

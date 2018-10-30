@@ -2,11 +2,12 @@ package com.codangcoding.kmovieapp.presentation.list
 
 import com.codangcoding.kmovieapp.domain.data.MovieRepository
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.*
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.launch
 
 class MovieListPresenter(
     private val repository: MovieRepository
@@ -21,7 +22,7 @@ class MovieListPresenter(
 
     private val viewStates = Channel<MovieListContract.ViewState>()
 
-    override fun viewStates(): Channel<MovieListContract.ViewState> =
+    override fun viewStates(): ReceiveChannel<MovieListContract.ViewState> =
         viewStates
 
     override fun loadPopularMovies() {

@@ -1,7 +1,7 @@
 package com.codangcoding.kmovieapp.external.data
 
 import com.codangcoding.kmovieapp.domain.entity.ApiResponse
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
 
 interface MovieService {

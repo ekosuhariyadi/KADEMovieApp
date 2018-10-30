@@ -2,13 +2,13 @@ package com.codangcoding.kmovieapp.presentation.list
 
 import android.arch.lifecycle.ViewModel
 import com.codangcoding.kmovieapp.domain.entity.Movie
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 
 interface MovieListContract {
 
     abstract class Presenter : ViewModel() {
 
-        abstract fun viewStates(): Channel<ViewState>
+        abstract fun viewStates(): ReceiveChannel<ViewState>
 
         abstract fun loadPopularMovies()
 

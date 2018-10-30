@@ -3,8 +3,8 @@ package com.codangcoding.kmovieapp.domain.data
 import com.codangcoding.kmovieapp.domain.entity.ApiResponse
 import com.codangcoding.kmovieapp.domain.entity.Movie
 import com.codangcoding.kmovieapp.external.data.MovieService
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

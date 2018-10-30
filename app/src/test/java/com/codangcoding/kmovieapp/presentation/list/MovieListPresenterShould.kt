@@ -3,9 +3,9 @@ package com.codangcoding.kmovieapp.presentation.list
 import com.codangcoding.kmovieapp.domain.data.MovieRepository
 import com.codangcoding.kmovieapp.domain.entity.Movie
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.*
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
