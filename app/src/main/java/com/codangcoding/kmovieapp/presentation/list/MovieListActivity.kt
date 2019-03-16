@@ -9,25 +9,15 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import com.codangcoding.kmovieapp.BuildConfig
 import com.codangcoding.kmovieapp.R
-import com.codangcoding.kmovieapp.domain.data.MovieRepository
-import com.codangcoding.kmovieapp.domain.data.MovieRepositoryImpl
-import com.codangcoding.kmovieapp.external.data.MovieService
 import com.codangcoding.kmovieapp.presentation.detail.MovieDetailActivity
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.LoadingState
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.ResultState
 import com.codangcoding.kmovieapp.ui.VerticalLinearLayoutOffsetItemDecoration
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import kotlinx.android.synthetic.main.activity_movie_list.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.jackson.JacksonConverterFactory
+import org.koin.android.ext.android.get
 
 class MovieListActivity : AppCompatActivity(), MovieListContract.View,
     SwipeRefreshLayout.OnRefreshListener {
@@ -49,42 +39,7 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
     }
 
     private fun initPresenter() {
-        Companion.presenter?.let { this.presenter = it }
-        if (this::presenter.isInitialized)
-            return
-
-        val objectMapper = ObjectMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .registerKotlinModule()
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val originRequest = chain.request()
-                val originUrl = originRequest.url()
-
-                val newUrl = originUrl.newBuilder()
-                    .addQueryParameter("api_key", BuildConfig.API_KEY)
-                    .addQueryParameter("language", "en-US")
-                    .build()
-                val newRequest = originRequest.newBuilder()
-                    .url(newUrl)
-                    .build()
-
-                chain.proceed(newRequest)
-            }
-            .build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .build()
-
-        val movieService = retrofit.create(MovieService::class.java)
-        val repository: MovieRepository = MovieRepositoryImpl(movieService)
-
-        presenter = MovieListPresenter(repository)
+        injector.invoke(this)
     }
 
     private fun initView() {
@@ -162,6 +117,8 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
     }
 
     companion object {
-        var presenter: MovieListContract.Presenter? = null
+        var injector = { activity: MovieListActivity ->
+            activity.presenter = activity.get()
+        }
     }
 }

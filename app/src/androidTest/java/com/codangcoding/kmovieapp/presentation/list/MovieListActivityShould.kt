@@ -40,7 +40,9 @@ class MovieListActivityShould {
             whenever(presenter.viewStates())
                 .thenReturn(Channel()) // it is verify that viewStates from presenter is called
 
-            MovieListActivity.presenter = presenter
+            MovieListActivity.injector = {
+                it.presenter = presenter
+            }
         }
     }
 
