@@ -6,10 +6,11 @@ import com.codangcoding.kmovieapp.domain.data.MovieRepositoryImpl
 import com.codangcoding.kmovieapp.external.data.MovieService
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract
 import com.codangcoding.kmovieapp.presentation.list.MovieListPresenter
+import com.codangcoding.kmovieapp.util.DefaultAppDispatcher
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import kotlinx.coroutines.Job
 import okhttp3.OkHttpClient
 import org.koin.dsl.module.module
 import retrofit2.Retrofit
@@ -24,7 +25,7 @@ val appModule = module {
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val originRequest = chain.request()
-                val originUrl = originRequest.url()
+                val originUrl = originRequest.url
 
                 val newUrl = originUrl.newBuilder()
                     .addQueryParameter("api_key", BuildConfig.API_KEY)
@@ -42,7 +43,6 @@ val appModule = module {
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
     }
 
@@ -57,6 +57,6 @@ val appModule = module {
 
 val movieListModule = module {
     factory<MovieListContract.Presenter> {
-        MovieListPresenter(get())
+        MovieListPresenter(get(), Job(), DefaultAppDispatcher)
     }
 }

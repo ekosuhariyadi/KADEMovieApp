@@ -3,12 +3,11 @@ package com.codangcoding.kmovieapp.domain.data
 import com.codangcoding.kmovieapp.domain.entity.ApiResponse
 import com.codangcoding.kmovieapp.domain.entity.Movie
 import com.codangcoding.kmovieapp.external.data.MovieService
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.Mockito.`when` as whenever
 
@@ -44,9 +43,9 @@ class MovieRepositoryImplShould {
             ApiResponse(page = 1, totalPage = 1, totalResult = 2, movies = movies)
 
         whenever(service.getPopularMovies())
-            .thenReturn(CompletableDeferred(response))
+            .thenReturn(response)
 
-        val actualMovies = repository.getPopularMovies().await()
+        val actualMovies = repository.getPopularMovies()
 
         assertEquals(movies, actualMovies)
     }
@@ -56,7 +55,7 @@ class MovieRepositoryImplShould {
         whenever(service.getPopularMovies())
             .thenThrow(IllegalArgumentException("Something went wrong heh"))
 
-        repository.getPopularMovies().await()
+        repository.getPopularMovies()
 
         Unit
     }
@@ -86,9 +85,9 @@ class MovieRepositoryImplShould {
             ApiResponse(page = 1, totalPage = 1, totalResult = 2, movies = movies)
 
         whenever(service.getNowPlayingMovies())
-            .thenReturn(CompletableDeferred(response))
+            .thenReturn(response)
 
-        val actualMovies = repository.getNowPlayingMovies().await()
+        val actualMovies = repository.getNowPlayingMovies()
 
         assertEquals(movies, actualMovies)
     }
@@ -98,7 +97,7 @@ class MovieRepositoryImplShould {
         whenever(service.getNowPlayingMovies())
             .thenThrow(IllegalArgumentException("Something went wrong heh"))
 
-        repository.getNowPlayingMovies().await()
+        repository.getNowPlayingMovies()
 
         Unit
     }

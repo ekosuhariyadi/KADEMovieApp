@@ -1,13 +1,13 @@
 package com.codangcoding.kmovieapp.presentation.list
 
-import android.support.v7.recyclerview.extensions.ListAdapter
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.codangcoding.kmovieapp.BuildConfig
 import com.codangcoding.kmovieapp.GlideApp
 import com.codangcoding.kmovieapp.R
@@ -36,7 +36,8 @@ class MovieListAdapter(
         viewHolder.bind(getItem(position))
     }
 
-    class ViewHolder(rootView: View) : RecyclerView.ViewHolder(rootView) {
+    class ViewHolder(rootView: View) :
+        androidx.recyclerview.widget.RecyclerView.ViewHolder(rootView) {
 
         private val poster: ImageView = itemView.iv_poster
         private val title: TextView = itemView.tv_title

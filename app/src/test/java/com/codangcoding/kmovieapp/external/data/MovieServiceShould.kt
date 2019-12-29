@@ -5,7 +5,6 @@ import com.codangcoding.kmovieapp.util.loadJSON
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -38,7 +37,6 @@ class MovieServiceShould {
             .baseUrl(webServer.url(""))
             .client(okHttpClient)
             .addConverterFactory(JacksonConverterFactory.create(mapper))
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
 
         service = retrofit.create(MovieService::class.java)
@@ -70,7 +68,7 @@ class MovieServiceShould {
             )
         )
 
-        val actualMovies = service.getPopularMovies().await().movies
+        val actualMovies = service.getPopularMovies().movies
         assertEquals(expectedMovies, actualMovies)
     }
 
@@ -80,7 +78,7 @@ class MovieServiceShould {
             .setResponseCode(403)
         webServer.enqueue(mockReponse)
 
-        service.getPopularMovies().await()
+        service.getPopularMovies()
 
         Unit // to hide warning, because test case should return unit
     }
@@ -111,7 +109,7 @@ class MovieServiceShould {
             )
         )
 
-        val actualMovies = service.getNowPlayingMovies().await().movies
+        val actualMovies = service.getNowPlayingMovies().movies
         assertEquals(expectedMovies, actualMovies)
     }
 
@@ -121,7 +119,7 @@ class MovieServiceShould {
             .setResponseCode(403)
         webServer.enqueue(mockReponse)
 
-        service.getNowPlayingMovies().await()
+        service.getNowPlayingMovies()
 
         Unit // to hide warning, because test case should return unit
     }

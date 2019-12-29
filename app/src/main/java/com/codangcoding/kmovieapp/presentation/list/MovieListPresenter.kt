@@ -1,58 +1,55 @@
 package com.codangcoding.kmovieapp.presentation.list
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.codangcoding.kmovieapp.domain.data.MovieRepository
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.*
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.launch
+import com.codangcoding.kmovieapp.util.AppDispatchers
+import kotlinx.coroutines.*
 
 class MovieListPresenter(
-    private val repository: MovieRepository
+    private val repository: MovieRepository,
+    private val job: Job,
+    private val appDispatchers: AppDispatchers
 ) : MovieListContract.Presenter() {
 
-    private val compositeJob = Job()
-        get() {
-            return if (field.isCancelled)
-                Job() // canceled job can not be reused, so create a new
-            else field
-        }
+    private val _viewStates = MutableLiveData<MovieListContract.ViewState>()
+    override val viewStates: LiveData<MovieListContract.ViewState>
+        get() = _viewStates
 
-    private val viewStates = Channel<MovieListContract.ViewState>()
-
-    override fun viewStates(): ReceiveChannel<MovieListContract.ViewState> =
-        viewStates
+    private val coroutineScope = CoroutineScope(appDispatchers.ui + SupervisorJob(job))
 
     override fun loadPopularMovies() {
-        GlobalScope.launch(compositeJob) {
+        coroutineScope.launch {
             try {
-                viewStates.send(LoadingState)
-                val movies = repository.getPopularMovies().await()
-                viewStates.send(ResultState(movies))
+                _viewStates.value = LoadingState
+                val movies = withContext(appDispatchers.io) {
+                    repository.getPopularMovies()
+                }
+                _viewStates.value = ResultState(movies)
             } catch (ex: Exception) {
                 if (ex !is CancellationException)
-                    viewStates.send(ErrorState(ex.message ?: ""))
+                    _viewStates.value = ErrorState(ex.message ?: "")
             }
         }
     }
 
     override fun loadNowPlayingMovies() {
-        GlobalScope.launch(compositeJob) {
+        coroutineScope.launch {
             try {
-                viewStates.send(LoadingState)
-                val movies = repository.getNowPlayingMovies().await()
-                viewStates.send(ResultState(movies))
+                _viewStates.value = LoadingState
+                val movies = withContext(appDispatchers.io) {
+                    repository.getNowPlayingMovies()
+                }
+                _viewStates.value = ResultState(movies)
             } catch (ex: Exception) {
                 if (ex !is CancellationException)
-                    viewStates.send(ErrorState(ex.message ?: ""))
+                    _viewStates.value = ErrorState(ex.message ?: "")
             }
         }
     }
 
-    override fun onCleared() {
-        compositeJob.cancel()
-        viewStates.cancel()
+    public override fun onCleared() {
+        job.cancel()
     }
 }

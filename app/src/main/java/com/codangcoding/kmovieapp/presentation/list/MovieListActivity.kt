@@ -2,27 +2,26 @@ package com.codangcoding.kmovieapp.presentation.list
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.view.ViewCompat
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.codangcoding.kmovieapp.R
 import com.codangcoding.kmovieapp.presentation.detail.MovieDetailActivity
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.LoadingState
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.ResultState
 import com.codangcoding.kmovieapp.ui.VerticalLinearLayoutOffsetItemDecoration
 import kotlinx.android.synthetic.main.activity_movie_list.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 
 class MovieListActivity : AppCompatActivity(), MovieListContract.View,
-    SwipeRefreshLayout.OnRefreshListener {
+                          SwipeRefreshLayout.OnRefreshListener {
 
-    private var selectedMenuId = R.id.mn_popular
+    private var selectedMenuId: Int = 0
 
     private lateinit var adapter: MovieListAdapter
 
@@ -50,7 +49,11 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
                 .putExtra(MovieDetailActivity.EXTRA_MOVIE, it)
             startActivity(intent)
         }
-        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        val layoutManager = LinearLayoutManager(
+            this,
+            LinearLayoutManager.VERTICAL,
+            false
+        )
         movieList.layoutManager = layoutManager
         movieList.adapter = adapter
         movieList.addItemDecoration(
@@ -58,13 +61,9 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
         )
         ViewCompat.setNestedScrollingEnabled(movieList, false)
 
-        GlobalScope.launch {
-            for (viewState in presenter.viewStates()) {
-                runOnUiThread {
-                    renderState(viewState)
-                }
-            }
-        }
+        presenter.viewStates.observe(this, Observer { viewState ->
+            viewState?.let { renderState(it) }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -81,12 +80,14 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
                 presenter.loadPopularMovies()
                 true
             }
+
             R.id.mn_now_playing -> {
                 selectedMenuId = item.itemId
                 tv_header.text = resources.getString(R.string.now_playing_movies)
                 presenter.loadNowPlayingMovies()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -94,10 +95,12 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
     override fun renderState(viewState: MovieListContract.ViewState) {
         when (viewState) {
             is LoadingState -> swipeRefresh.isRefreshing = true
+
             is ResultState -> {
                 swipeRefresh.isRefreshing = false
                 adapter.submitList(viewState.movies)
             }
+
             is MovieListContract.ViewState.ErrorState -> {
                 swipeRefresh.isRefreshing = false
                 Toast.makeText(this, viewState.error, Toast.LENGTH_SHORT).show()
@@ -110,6 +113,7 @@ class MovieListActivity : AppCompatActivity(), MovieListContract.View,
             R.id.mn_popular -> {
                 presenter.loadPopularMovies()
             }
+
             R.id.mn_now_playing -> {
                 presenter.loadNowPlayingMovies()
             }

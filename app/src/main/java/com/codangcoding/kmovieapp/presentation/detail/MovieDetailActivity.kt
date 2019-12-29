@@ -1,15 +1,16 @@
 package com.codangcoding.kmovieapp.presentation.detail
 
 import android.os.Bundle
-import android.support.design.widget.AppBarLayout
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.codangcoding.kmovieapp.BuildConfig
 import com.codangcoding.kmovieapp.GlideApp
 import com.codangcoding.kmovieapp.R
 import com.codangcoding.kmovieapp.domain.entity.Movie
+import com.google.android.material.appbar.AppBarLayout
 import kotlinx.android.synthetic.main.activity_movie_detail.*
+import kotlin.math.abs
 
 class MovieDetailActivity : AppCompatActivity(), AppBarLayout.OnOffsetChangedListener {
 
@@ -95,7 +96,7 @@ class MovieDetailActivity : AppCompatActivity(), AppBarLayout.OnOffsetChangedLis
         if (maxScrollSize == 0)
             maxScrollSize = appBar.totalScrollRange
 
-        val percentage = Math.abs(verticalOffset) * 100 / maxScrollSize
+        val percentage = abs(verticalOffset) * 100 / maxScrollSize
         if (percentage >= PERCENTAGE_TO_ANIMATE_RATING && ratingShown) {
             ratingShown = false
 

@@ -1,13 +1,15 @@
 package com.codangcoding.kmovieapp.presentation.list
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.codangcoding.kmovieapp.domain.data.MovieRepository
 import com.codangcoding.kmovieapp.domain.entity.Movie
 import com.codangcoding.kmovieapp.presentation.list.MovieListContract.ViewState.*
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.launch
+import com.codangcoding.kmovieapp.util.TestAppDispatchers
+import com.codangcoding.kmovieapp.util.TestObserver
+import junit.framework.Assert.assertEquals
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -17,9 +19,13 @@ import org.mockito.Mockito.`when` as whenever
 @RunWith(MockitoJUnitRunner.StrictStubs::class)
 class MovieListPresenterShould {
 
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
+
     private val repository = Mockito.mock(MovieRepository::class.java)
 
-    private val presenter = MovieListPresenter(repository)
+    private val job = Job()
+    private val presenter = MovieListPresenter(repository, job, TestAppDispatchers)
 
     @Test
     fun send_result_when_load_popular_movies_success() = runBlocking {
@@ -42,19 +48,15 @@ class MovieListPresenterShould {
             )
         )
         whenever(repository.getPopularMovies())
-            .thenReturn(CompletableDeferred(movies))
+            .thenReturn(movies)
 
-        val viewStateChannel = presenter.viewStates()
-        launch {
-            presenter.loadPopularMovies()
-        }
+        val observer = TestObserver<MovieListContract.ViewState>()
+        presenter.viewStates.observeForever(observer)
 
-        val actualStates = mutableListOf<MovieListContract.ViewState>()
-        repeat(2) { actualStates.add(viewStateChannel.receive()) }
+        presenter.loadPopularMovies()
 
-        assertEquals(LoadingState, actualStates[0])
-        assertTrue(actualStates[1] is ResultState)
-        assertEquals(movies, (actualStates[1] as ResultState).movies)
+        observer.assertThatHistoryAt(0, LoadingState)
+        observer.assertThatHistoryAt(1, ResultState(movies))
     }
 
     @Test
@@ -62,17 +64,13 @@ class MovieListPresenterShould {
         whenever(repository.getPopularMovies())
             .thenThrow(IllegalArgumentException("Anone anone"))
 
-        val viewStateChannel = presenter.viewStates()
-        launch {
-            presenter.loadPopularMovies()
-        }
+        val observer = TestObserver<MovieListContract.ViewState>()
+        presenter.viewStates.observeForever(observer)
 
-        val actualStates = mutableListOf<MovieListContract.ViewState>()
-        repeat(2) { actualStates.add(viewStateChannel.receive()) }
+        presenter.loadPopularMovies()
 
-        assertEquals(LoadingState, actualStates[0])
-        assertTrue(actualStates[1] is ErrorState)
-        assertEquals("Anone anone", (actualStates[1] as ErrorState).error)
+        observer.assertThatHistoryAt(0, LoadingState)
+        observer.assertThatHistoryAt(1, ErrorState("Anone anone"))
     }
 
     @Test
@@ -96,19 +94,15 @@ class MovieListPresenterShould {
             )
         )
         whenever(repository.getNowPlayingMovies())
-            .thenReturn(CompletableDeferred(movies))
+            .thenReturn(movies)
 
-        val viewStateChannel = presenter.viewStates()
-        launch {
-            presenter.loadNowPlayingMovies()
-        }
+        val observer = TestObserver<MovieListContract.ViewState>()
+        presenter.viewStates.observeForever(observer)
 
-        val actualStates = mutableListOf<MovieListContract.ViewState>()
-        repeat(2) { actualStates.add(viewStateChannel.receive()) }
+        presenter.loadNowPlayingMovies()
 
-        assertEquals(LoadingState, actualStates[0])
-        assertTrue(actualStates[1] is ResultState)
-        assertEquals(movies, (actualStates[1] as ResultState).movies)
+        observer.assertThatHistoryAt(0, LoadingState)
+        observer.assertThatHistoryAt(1, ResultState(movies))
     }
 
     @Test
@@ -116,16 +110,21 @@ class MovieListPresenterShould {
         whenever(repository.getNowPlayingMovies())
             .thenThrow(IllegalArgumentException("Anone anone"))
 
-        val viewStateChannel = presenter.viewStates()
-        launch {
-            presenter.loadNowPlayingMovies()
-        }
+        val observer = TestObserver<MovieListContract.ViewState>()
+        presenter.viewStates.observeForever(observer)
 
-        val actualStates = mutableListOf<MovieListContract.ViewState>()
-        repeat(2) { actualStates.add(viewStateChannel.receive()) }
+        presenter.loadNowPlayingMovies()
 
-        assertEquals(LoadingState, actualStates[0])
-        assertTrue(actualStates[1] is ErrorState)
-        assertEquals("Anone anone", (actualStates[1] as ErrorState).error)
+        observer.assertThatHistoryAt(0, LoadingState)
+        observer.assertThatHistoryAt(1, ErrorState("Anone anone"))
+    }
+
+    @Test
+    fun on_cleared_should_cancel_job() {
+        assertEquals(job.isCancelled, false)
+
+        presenter.onCleared()
+
+        assertEquals(job.isCancelled, true)
     }
 }
